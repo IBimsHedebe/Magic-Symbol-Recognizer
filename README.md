@@ -1,0 +1,1 @@
+# Magic Symbol Recognizer
