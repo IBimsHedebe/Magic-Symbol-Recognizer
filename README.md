@@ -15,8 +15,6 @@ Du möchtest das System sofort ausprobieren? Die fertige, eigenständige Windows
 *   **Lokale KI-Erkennung:** Nutzung von Microsoft `ML.NET` zur Bildklassifizierung direkt auf dem Endgerät (vollständig offline, keine Serverkosten).
 *   **Magisches Malfeld:** Ein responsives `InkCanvas` (WPF) mit visuellem Feedback (leuchtende Tinte) für den Spieler.
 *   **Präzisions-Algorithmus:** Die gezeichneten Linien werden in Echtzeit mathematisch normalisiert und mit idealen Musterbeispielen (Vektorkoordinaten) verglichen.
-*   **Zeitkomponente:** Schnelligkeit wird belohnt! Ein integrierter Timer misst die Zauberdauer und beeinflusst den finalen Score.
-*   **Failsafe-Schwellenwert:** Zauber mit einem Gesamtergebnis von unter 40% werden als "fehlgeschlagen" oder "unerkennbar" gewertet.
 
 ---
 ## Technologie-Stack
@@ -40,7 +38,7 @@ Wenn du den Code verändern oder eigene Symbole hinzufügen möchtest:
 
 1. Klicke oben auf **Code -> Download ZIP** oder klone das Repository:
    ```bash
-   git clone https://github.com
+   git clone https://github.com/IBimsHedebe/Magic-Symbol-Recognizer
    ```
 2. Öffne die `.sln`-Datei in **Visual Studio 2022** (oder neuer).
 3. Stelle sicher, dass die Erweiterung **ML.NET Model Builder** in Visual Studio installiert ist.
