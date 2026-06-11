@@ -24,6 +24,10 @@
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" Margin="10">
             <Button Content="Zauber wirken" Click="CastSpell_Click" Width="120" Height="40" Margin="5"/>
             <Button Content="Löschen" Click="ClearCanvas_Click" Width="120" Height="40" Margin="5"/>
+
+            <Separator Width="20" Background="Transparent"/>
+            <TextBox x:Name="TxtSpellName" Width="120" Height="30" VerticalContentAlignment="Center" Margin="5" ToolTip="Name des neuen Zaubers"/>
+            <Button Content="Als Muster speichern" Click="SavePattern_Click" Width="130" Height="40" Margin="5" Background="DarkGreen" Foreground="White"/>
         </StackPanel>
     </Grid>
 </Window>
