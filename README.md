@@ -30,7 +30,8 @@ Du möchtest das System sofort ausprobieren? Die fertige, eigenständige Windows
 
 Das System kombiniert maschinelles Lernen mit klassischer Mathematik in vier Phasen:
 
-**Erkennung (KI):** Beim Klick auf "Zauber wirken" analysiert das neuronale Netz das Gesamtbild und ordnet es einer Magieschule zu (z.B. *Feuer* oder *Heilung*). Außerdem gibt die KI auch einen Genauigkeitsgrad in Prozent wieder
+*   **Erkennung (KI):** Beim Klick auf "Zauber wirken" analysiert das neuronale Netz das Gesamtbild und ordnet es einer Magieschule zu (z.B. *Feuer* oder *Heilung*).
+*   **Bewertung mit Standart Beispielen:** Die Magie wird nun mit einem Musterbeispiel vergleicht und jenachdem, wie ähnlich sie zueinander sind, desto besser ist die Bewertung.
 
 ---
 ## Installation & Lokales Setup (Für Entwickler)
