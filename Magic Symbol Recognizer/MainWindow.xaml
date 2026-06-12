@@ -4,30 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Magic_Symbol_Recognizer"
+        xmlns:ctrls="clr-namespace:Magic_Symbol_Recognizer.Controls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        Title="Magie-Akademie" Height="600" Width="900">
 
-        <!-- Das magische Malfeld -->
-        <InkCanvas x:Name="MagicCanvas" Background="Black" Grid.Row="0">
-            <InkCanvas.DefaultDrawingAttributes>
-                <!-- Blaue, leuchtende magische Tinte -->
-                <DrawingAttributes Color="Cyan" Width="8" Height="8"/>
-            </InkCanvas.DefaultDrawingAttributes>
-        </InkCanvas>
-
-        <!-- Steuerung unten -->
-        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" Margin="10">
-            <Button Content="Zauber wirken" Click="CastSpell_Click" Width="120" Height="40" Margin="5"/>
-            <Button Content="Löschen" Click="ClearCanvas_Click" Width="120" Height="40" Margin="5"/>
-
-            <Separator Width="20" Background="Transparent"/>
-            <TextBox x:Name="TxtSpellName" Width="120" Height="30" VerticalContentAlignment="Center" Margin="5" ToolTip="Name des neuen Zaubers"/>
-            <Button Content="Als Muster speichern" Click="SavePattern_Click" Width="130" Height="40" Margin="5" Background="DarkGreen" Foreground="White"/>
-        </StackPanel>
+    <Grid Background="#121212">
+        <ctrls:MainMenuControl x:Name="MainMenuControl" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <ctrls:SpellcastingControl x:Name="SpellcastingControl" Visibility="Collapsed"/>
+        <ctrls:LibraryControl x:Name="LibraryControl" Visibility="Collapsed"/>
     </Grid>
 </Window>

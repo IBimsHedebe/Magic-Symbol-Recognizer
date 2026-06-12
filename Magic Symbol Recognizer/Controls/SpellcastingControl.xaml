@@ -1,0 +1,29 @@
+<UserControl x:Class="Magic_Symbol_Recognizer.Controls.SpellcastingControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    mc:Ignorable="d">
+    <Grid Background="Black">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Button x:Name="BtnBack" Content="⬅ Zurück zum Hauptmenü" Grid.Row="0" HorizontalAlignment="Left" Margin="10" Padding="10,5"/>
+
+        <InkCanvas x:Name="InkCanvasControl" Grid.Row="1" Background="#050505" Margin="20">
+            <InkCanvas.DefaultDrawingAttributes>
+                <DrawingAttributes Color="Cyan" Width="8" Height="8"/>
+            </InkCanvas.DefaultDrawingAttributes>
+        </InkCanvas>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+            <TextBox x:Name="TxtSpellNameLocal" Width="140" Height="30" VerticalContentAlignment="Center" Margin="5" ToolTip="Name des neuen Zaubers" />
+            <Button x:Name="BtnSavePattern" Content="Als Muster speichern" Width="140" Height="36" Margin="5" Background="DarkGreen" Foreground="White"/>
+            <Button x:Name="BtnCast" Content="Zauber wirken" Width="120" Height="40" Margin="5" Background="DarkBlue" Foreground="White"/>
+            <Button x:Name="BtnClear" Content="Löschen" Width="120" Height="40" Margin="5"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

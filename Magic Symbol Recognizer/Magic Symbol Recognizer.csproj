@@ -8,6 +8,24 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="ZauberMuster\Dark.json" />
+    <None Remove="ZauberMuster\Earth.json" />
+    <None Remove="ZauberMuster\Fire.json" />
+    <None Remove="ZauberMuster\Light.json" />
+    <None Remove="ZauberMuster\Thunder.json" />
+    <None Remove="ZauberMuster\Water.json" />
+    <None Remove="ZauberMuster\Wind.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ZauberMuster\Dark.json" />
+    <EmbeddedResource Include="ZauberMuster\Earth.json" />
+    <EmbeddedResource Include="ZauberMuster\Fire.json" />
+    <EmbeddedResource Include="ZauberMuster\Light.json" />
+    <EmbeddedResource Include="ZauberMuster\Thunder.json" />
+    <EmbeddedResource Include="ZauberMuster\Water.json" />
+    <EmbeddedResource Include="ZauberMuster\Wind.json" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
     <PackageReference Include="Microsoft.ML" Version="4.0.0" />
     <PackageReference Include="Microsoft.ML.Vision" Version="4.0.0" />
