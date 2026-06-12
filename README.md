@@ -1,5 +1,5 @@
 # Magic Symbol Recognizer
-Ein interaktives, KI-gestütztes Magiesystem für Windows. Spieler können mit der Maus oder dem Finger magische Runen auf ein Zeichenfeld zeichnen. Eine lokale künstliche Intelligenz erkennt die Art des Zaubers, während ein mathematischer Algorithmus die Präzision und die benötigte Zeit auswertet.
+Ein interaktives, KI-gestütztes Magiesystem für Windows. Spieler können mit der Maus oder dem Finger magische Runen auf ein Zeichenfeld zeichnen. Eine lokale künstliche Intelligenz erkennt die Art des Zaubers, während ein mathematischer Punkte-Resampling-Algorithmus die Präzision und die benötigte Zeit auswertet.
 
 ---
 ## Download & Demo
@@ -12,9 +12,24 @@ Du möchtest das System sofort ausprobieren? Die fertige, eigenständige Windows
 ---
 ## Features
 
-*   **Lokale KI-Erkennung:** Nutzung von Microsoft `ML.NET` zur Bildklassifizierung direkt auf dem Endgerät (vollständig offline, keine Serverkosten).
-*   **Magisches Malfeld:** Ein responsives `InkCanvas` (WPF) mit visuellem Feedback (leuchtende Tinte) für den Spieler.
-*   **Präzisions-Algorithmus:** Die gezeichneten Linien werden in Echtzeit mathematisch normalisiert und mit idealen Musterbeispielen (Vektorkoordinaten) verglichen.
+*   **Zentrales Hauptmenü:** Nahtlose Steuerung über drei Hauptoptionen (*Zaubern*, *Bibliothek*, *Schließen*) mitsamt universeller Zurück-Navigation in allen Untermenüs.
+*   **Lokale KI-Erkennung:** Nutzung von Microsoft `ML.NET` zur Bildklassifizierung direkt auf dem Endgerät (vollständig offline, keine Serverkosten oder Latenzen).
+*   **Unverzerrte Quadrate:** Dynamische Benutzeroberfläche, die das Malfeld und die Vorschau bei jeder Fenstergröße in einem perfekten 1:1-Verhältnis (Quadrat) hält, damit Kreise und Symbole nicht verzerren.
+*   **Lebendige Bibliothek:** Ein integriertes Buch der Runen, das alle bekannten Zauber auflistet und die perfekten Musterlösungen live aus den internen Koordinaten auf den Bildschirm zeichnet.
+*   **Manipulationssicher:** Die perfekten Musterlösungen sind als verschlüsselte JSON-Ressourcen ("Embedded Resources") direkt in die `.exe`-Datei hineingeschmolzen.
+*   **Vorlagen-Editor:** Neue Zauberrunen können direkt im laufenden Programm als Entwickler-Funktion gezeichnet und als `.json`-Koordinaten exportiert werden.
+
+---
+## Die 7 Magie Arten
+
+Das System ist auf den exakten, sequenziellen Linienabgleich von sieben elementaren Ur-Runen trainiert:
+*   **Dark:** Ein kreisrunder Pfad, gefolgt von einem flüssig angeschlossenen, diagonalen Kreuz (X) in der Mitte.
+*   **Earth:** Ein mathematisch exaktes, im Uhrzeigersinn geschlossenes Quadrat.
+*   **Fire:** Ein stabiles, gleichschenkliges Dreieck, beginnend an der oberen Spitze.
+*   **Light:** Ein hochauflösender, runder Kreis aus 12 interpolierten Konturpunkten.
+*   **Thunder:** Das klassische, kantige Strom-Blitz-Symbol mit scharfen Richtungswechseln.
+*   **Water:** Eine flüssige, mathematisch harmonische Sinus-Welle (Tilde-Zeichen).
+*   **Wind:** Drei vertikale, parallele Striche mit identischem Abstand, optimiert als durchgängige S-Linie.
 
 ---
 ## Technologie-Stack
@@ -22,14 +37,18 @@ Du möchtest das System sofort ausprobieren? Die fertige, eigenständige Windows
 *   **Sprache:** C# (.NET 8.0)
 *   **UI-Framework:** WPF (Windows Presentation Foundation)
 *   **KI-Framework:** ML.NET - Model Builder (Bildklassifizierung)
+*   **Datenformat:** JSON (für die mathematischen Vektor-Muster)
 
 ---
 ## Funktionsweise des Algorithmus
 
 Das System kombiniert maschinelles Lernen mit klassischer Mathematik in vier Phasen:
 
-*   **Erkennung (KI):** Beim Klick auf "Zauber wirken" analysiert das neuronale Netz das Gesamtbild und ordnet es einer Magieschule zu (z.B. *Feuer* oder *Heilung*).
-*   **Bewertung mit Standart Beispielen:** Die Magie wird nun mit einem Musterbeispiel vergleicht und jenachdem, wie ähnlich sie zueinander sind, desto besser ist die Bewertung.
+1.  **Erkennung (KI):** Beim Klick auf "Zauber wirken" analysiert das neuronale Netz (`ML.NET`) das Gesamtbild und ordnet es einer Magieschule zu.
+2.  **Punkte-Normalisierung:** Unabhängig davon, ob der Spieler die Rune winzig in die Ecke oder riesig in die Mitte zeichnet, skaliert der Algorithmus die Koordinaten auf eine Standard-Einheitsbox von `0.0` bis `1.0`.
+3.  **Zeitgesteuertes Resampling (Punkte-Stretching):** Da Spieler Hunderte von Punkten erzeugen, die Vorlagen jedoch nur aus prägnanten Eckpunkten bestehen, berechnet das System den prozentualen Zeitfortschritt. Es pickt die exakt zueinander passenden Linienabschnitte heraus, um die Linien synchron übereinanderzulegen.
+4.  **Geschwindigkeits-Faktor:** Die Stoppuhr misst die Dauer des Zaubers. Dem Spieler stehen 4 Sekunden freie Konzentrationszeit zur Verfügung – jede Sekunde darüber führt zu einem milden Punkteabzug.
+5.  **Schwellenwert-Logik:** Form-Genauigkeit (90%) und Zeit (10%) ergeben den Gesamtscore. Liegt dieser **unter 40%**, verpufft die Magie wirkungslos und wird als *unerkenntlich* gewertet.
 
 ---
 ## Installation & Lokales Setup (Für Entwickler)
