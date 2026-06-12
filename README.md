@@ -64,6 +64,6 @@ Wenn du den Code verändern oder eigene Symbole hinzufügen möchtest:
 4. Starte das Projekt mit `F5`.
 
 ---
-##Lizenz
+## Lizenz
 
 Dieses Projekt ist unter der MIT-Lizenz lizenziert – siehe die [LICENSE](LICENSE) Datei für Details.
