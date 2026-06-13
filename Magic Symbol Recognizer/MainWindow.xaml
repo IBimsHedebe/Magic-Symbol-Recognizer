@@ -10,6 +10,7 @@
 
     <Grid Background="#121212">
         <ctrls:MainMenuControl x:Name="MainMenuControl" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <ctrls:BattleArenaControl x:Name="BattleArenaControl" Visibility="Collapsed"/>
         <ctrls:SpellcastingControl x:Name="SpellcastingControl" Visibility="Collapsed"/>
         <ctrls:LibraryControl x:Name="LibraryControl" Visibility="Collapsed"/>
     </Grid>
