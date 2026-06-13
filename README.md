@@ -18,6 +18,13 @@ Du möchtest das System sofort ausprobieren? Die fertige, eigenständige Windows
 *   **Lebendige Bibliothek:** Ein integriertes Buch der Runen, das alle bekannten Zauber auflistet und die perfekten Musterlösungen live aus den internen Koordinaten auf den Bildschirm zeichnet.
 *   **Manipulationssicher:** Die perfekten Musterlösungen sind als verschlüsselte JSON-Ressourcen ("Embedded Resources") direkt in die `.exe`-Datei hineingeschmolzen.
 *   **Vorlagen-Editor:** Neue Zauberrunen können direkt im laufenden Programm als Entwickler-Funktion gezeichnet und als `.json`-Koordinaten exportiert werden.
+*   **Ghosting:** Beim Übungsbereich kann man, wenn die Magie unter 70% ist eine rote linie als musterbeispiel zum übern haben.
+
+---
+## Modus
+*   **Übungsmodus:** lerne wie du die Magie malst
+*   **Battle Arena:** bekämpfe eine AI und versuch sie zu besiegen
+*   **Bibliothek:** Schaue nach, was für magie du malen kannst 
 
 ---
 ## Die 7 Magie Arten
@@ -49,6 +56,11 @@ Das System kombiniert maschinelles Lernen mit klassischer Mathematik in vier Pha
 3.  **Zeitgesteuertes Resampling (Punkte-Stretching):** Da Spieler Hunderte von Punkten erzeugen, die Vorlagen jedoch nur aus prägnanten Eckpunkten bestehen, berechnet das System den prozentualen Zeitfortschritt. Es pickt die exakt zueinander passenden Linienabschnitte heraus, um die Linien synchron übereinanderzulegen.
 4.  **Geschwindigkeits-Faktor:** Die Stoppuhr misst die Dauer des Zaubers. Dem Spieler stehen 4 Sekunden freie Konzentrationszeit zur Verfügung – jede Sekunde darüber führt zu einem milden Punkteabzug.
 5.  **Schwellenwert-Logik:** Form-Genauigkeit (90%) und Zeit (10%) ergeben den Gesamtscore. Liegt dieser **unter 40%**, verpufft die Magie wirkungslos und wird als *unerkenntlich* gewertet.
+
+---
+### Problem
+
+*   **Magie wird nicht erkannt:** Die Magie Wind und Thunder wird im moment nicht erkant und daher nicht wirklich benutzt werden können.
 
 ---
 ## Installation & Lokales Setup (Für Entwickler)
