@@ -19,6 +19,8 @@ Du möchtest das System sofort ausprobieren? Die fertige, eigenständige Windows
 *   **Manipulationssicher:** Die perfekten Musterlösungen sind als verschlüsselte JSON-Ressourcen ("Embedded Resources") direkt in die `.exe`-Datei hineingeschmolzen.
 *   **Vorlagen-Editor:** Neue Zauberrunen können direkt im laufenden Programm als Entwickler-Funktion gezeichnet und als `.json`-Koordinaten exportiert werden.
 *   **Ghosting:** Beim Übungsbereich kann man, wenn die Magie unter 70% ist eine rote linie als musterbeispiel zum übern haben.
+*   **Ranking System:** Ein System dsa den Rank des Spielers anzeigt. Er started bei 1000 und kann sich erhöhen, wenn der Spieler gewinnt. Das ist auch mit der Art des Sieges in verbinung. Ein sehr guter Sieg gibt mehr Punkte als ein knapper Sieg.
+*   **AI-Bot:** Ein Bot der sich der stärke des Spieler anpasst und immer besser wird, je höher das Ranking vom Player ist.
 
 ---
 ## Modus
