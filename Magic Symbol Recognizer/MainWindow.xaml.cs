@@ -36,11 +36,12 @@ namespace Magic_Symbol_Recognizer
         private string _lastPlayerElement = string.Empty;
         private string _currentBotElement = string.Empty;
 
+        private int _playerRanking = 1000;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            // Wire up control events by resolving them from XAML names
             _mainMenuCtrl = this.FindName("MainMenuControl") as Controls.MainMenuControl;
             _battleArenaCtrl = this.FindName("BattleArenaControl") as Controls.BattleArenaControl;
             _spellcastingCtrl = this.FindName("SpellcastingControl") as Controls.SpellcastingControl;
@@ -52,6 +53,17 @@ namespace Magic_Symbol_Recognizer
                 _mainMenuCtrl.OpenBattleArenaClicked += (s, e) => OpenBattleArena_Click(s, e);
                 _mainMenuCtrl.OpenLibraryClicked += (s, e) => OpenLibrary_Click(s, e);
                 _mainMenuCtrl.CloseAppClicked += (s, e) => CloseApp_Click(s, e);
+
+                // Ranking-Anzeige initialisieren
+                try
+                {
+                    _playerRanking = RankingManager.LoadRanking();
+                    // Wenn MainMenuControl selbst eine TextBlock benötigt, wir aktualisieren es später
+                    // Für Backward Compatibility: setze einen lokalen UI-Text wenn vorhanden
+                    var txt = this.FindName("TxtRankingDisplay") as TextBlock;
+                    if (txt != null) txt.Text = $"Ranking: {_playerRanking} LP";
+                }
+                catch { /* ignore */ }
             }
 
             if (_battleArenaCtrl != null)
@@ -62,6 +74,13 @@ namespace Magic_Symbol_Recognizer
 
                 _battleArenaCtrl.InkCanvas.PreviewMouseDown += MagicCanvas_PreviewMouseDown;
                 _battleArenaCtrl.InkCanvas.SizeChanged += MagicCanvas_SizeChanged;
+
+                LoadPatternsFromFiles();
+
+                // NEU: Ranking beim Start aus der JSON-Datei laden und anzeigen
+                _playerRanking = RankingManager.LoadRanking();
+                var txt2 = this.FindName("TxtRankingDisplay") as TextBlock;
+                if (txt2 != null) txt2.Text = $"Ranking: {_playerRanking} LP";
             }
 
             if (_spellcastingCtrl != null)
@@ -85,7 +104,6 @@ namespace Magic_Symbol_Recognizer
             LoadPatternsFromFiles();
         }
 
-        // Start timer at first stroke
         private void MagicCanvas_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (!_magicTimer.IsRunning && _spellcastingCtrl != null && _spellcastingCtrl.InkCanvas.Strokes.Count == 0)
@@ -93,6 +111,10 @@ namespace Magic_Symbol_Recognizer
                 _magicTimer.Restart();
             }
         }
+
+        // -------------------------------------------------------------------------------------------
+        // ------------------------------ UI Navigation & Event Handlers -----------------------------
+        // -------------------------------------------------------------------------------------------
 
         private void OpenSpellcasting_Click(object sender, RoutedEventArgs e)
         {
@@ -144,6 +166,10 @@ namespace Magic_Symbol_Recognizer
         {
             Application.Current.Shutdown();
         }
+
+        // -------------------------------------------------------------------------------------------
+        // ---------------------------------- Library Display Logic ----------------------------------
+        // -------------------------------------------------------------------------------------------
 
         private void LstSpells_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -240,6 +266,10 @@ namespace Magic_Symbol_Recognizer
             }
         }
 
+        // -------------------------------------------------------------------------------------------
+        // ---------------------------------- Spell Processing Logic ---------------------------------
+        // -------------------------------------------------------------------------------------------
+
         private (string Label, int Score) ProcessSpellDrawing(System.Windows.Controls.InkCanvas canvas, double secondsTaken)
         {
             // 1. Bild für die KI rendern (aus dem übergebenen Canvas)
@@ -304,8 +334,6 @@ namespace Magic_Symbol_Recognizer
             return (recognizedLabel, finalScore);
         }
 
-
-
         private void DrawPracticeGhostLine(string spellName, InkCanvas canvas)
         {
             // 1. Prüfen, ob für diesen erkannten Zauber überhaupt ein perfektes Muster geladen ist
@@ -340,57 +368,11 @@ namespace Magic_Symbol_Recognizer
             canvas.Strokes.Add(ghostStroke);
         }
 
-        private void UpdateHPUI()
-        {
-            if (_battleArenaCtrl != null)
-            {
-                _battleArenaCtrl.UpdatePlayerHP(_playerHP);
-                _battleArenaCtrl.UpdateBotHP(_botHP);
-            }
-        }
-
-        private void PlanNextBotAttack()
-        {
-            // Minimaler Bot-Angriffsplan: Timer startet nach kurzer Verzögerung
-            _botTimer?.Stop();
-            _botTimer = new DispatcherTimer();
-            _botTimer.Interval = TimeSpan.FromSeconds(2.0);
-            _botTimer.Tick += (s, e) =>
-            {
-                _botTimer.Stop();
-                // einfacher Bot-Angriff: zufälliges Element aus Muster
-                var rnd = new Random();
-                var keys = _perfectPatterns.Keys.ToList();
-                if (keys.Count == 0) return;
-                _currentBotElement = keys[rnd.Next(keys.Count)];
-                // Schaden berechnen
-                int botDamage = rnd.Next(20, 60);
-                _playerHP -= botDamage;
-                if (_playerHP < 0) _playerHP = 0;
-                UpdateHPUI();
-                _battleArenaCtrl?.UpdateBotStatus($"Bot wirkt {_currentBotElement} und trifft dich ({botDamage} DMG)!");
-                if (_playerHP <= 0) EndBattle(false);
-            };
-            _botTimer.Start();
-        }
-
-        private void EndBattle(bool playerWon)
-        {
-            _isBattleActive = false;
-            _botTimer?.Stop();
-            if (_battleArenaCtrl != null)
-            {
-                _battleArenaCtrl.UpdateBotStatus(playerWon ? "Bot besiegt!" : "Du wurdest besiegt!");
-            }
-            // Rückkehr zum Hauptmenü
-            BackToMenu_Click(this, new RoutedEventArgs());
-        }
-
         private void ClearCanvas_Click(object sender, RoutedEventArgs e)
         {
             if (_spellcastingCtrl != null) _spellcastingCtrl.InkCanvas.Strokes.Clear();
             if (_battleArenaCtrl != null) _battleArenaCtrl.InkCanvas.Strokes.Clear();
-        
+
             _magicTimer.Reset();
         }
 
@@ -481,6 +463,150 @@ namespace Magic_Symbol_Recognizer
             _magicTimer.Reset();
         }
 
+        private double CalculateFormAccuracy(string spellName, InkCanvas canvas)
+        {
+            if (!_perfectPatterns.TryGetValue(spellName, out var pattern) || pattern.Count == 0) return 0.0;
+
+            List<Point> drawn = new List<Point>();
+            foreach (var stroke in canvas.Strokes)
+                foreach (var p in stroke.StylusPoints)
+                    drawn.Add(new Point(p.X, p.Y));
+
+            if (drawn.Count < 5) return 0.0;
+
+            var nDrawn = NormalizePoints(drawn);
+            var nPattern = pattern;
+
+            int n = nPattern.Count;
+
+            double total = 0.0;
+
+            for (int i = 0; i < n; i++)
+            {
+                double relativePosition = (double)i / (n - 1);
+
+                int playerIndex = (int)Math.Round(relativePosition * (nDrawn.Count - 1));
+
+                var a = nDrawn[playerIndex];
+                var b = nPattern[i];
+
+                total += Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
+            }
+
+            double avg = total / n;
+
+            double acc = 100.0 - (avg * 75.0);
+
+            acc = Math.Max(0.0, Math.Min(100.0, acc));
+
+            return acc;
+        }
+
+        private List<Point> NormalizePoints(List<Point> points)
+        {
+            if (points == null || points.Count == 0) return new List<Point>();
+            double minX = double.MaxValue, minY = double.MaxValue;
+            double maxX = double.MinValue, maxY = double.MinValue;
+            foreach (var p in points)
+            {
+                if (p.X < minX) minX = p.X;
+                if (p.Y < minY) minY = p.Y;
+                if (p.X > maxX) maxX = p.X;
+                if (p.Y > maxY) maxY = p.Y;
+            }
+            double w = Math.Max(1e-6, maxX - minX);
+            double h = Math.Max(1e-6, maxY - minY);
+            var res = new List<Point>(points.Count);
+            foreach (var p in points)
+            {
+                res.Add(new Point((p.X - minX) / w, (p.Y - minY) / h));
+            }
+            return res;
+        }
+
+        private void SaveCanvasAsToJpg(string path, InkCanvas canvas)
+        {
+            if (canvas == null) throw new ArgumentNullException(nameof(canvas));
+            int width = (int)canvas.ActualWidth;
+            int height = (int)canvas.ActualHeight;
+            if (width <= 0 || height <= 0) throw new InvalidOperationException("Canvas hat ungültige Größe zum Speichern.");
+            RenderTargetBitmap rtb = new RenderTargetBitmap(width, height, 96d, 96d, PixelFormats.Default);
+            rtb.Render(canvas);
+            JpegBitmapEncoder enc = new JpegBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(rtb));
+            using var fs = File.OpenWrite(path);
+            enc.Save(fs);
+        }
+
+        private void SaveCanvasAsNormalizedJpg(string path, InkCanvas canvas, int targetWidth, int targetHeight)
+        {
+            if (canvas == null) throw new ArgumentNullException(nameof(canvas));
+            if (targetWidth <= 0 || targetHeight <= 0) throw new ArgumentOutOfRangeException("targetWidth/Height");
+
+            // Create a DrawingVisual that paints a white background and the canvas content scaled to target size
+            DrawingVisual dv = new DrawingVisual();
+            using (var dc = dv.RenderOpen())
+            {
+                dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, targetWidth, targetHeight));
+                VisualBrush vb = new VisualBrush(canvas)
+                {
+                    Stretch = Stretch.Uniform
+                };
+                dc.DrawRectangle(vb, null, new Rect(0, 0, targetWidth, targetHeight));
+            }
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap(targetWidth, targetHeight, 96, 96, PixelFormats.Pbgra32);
+            rtb.Render(dv);
+
+            JpegBitmapEncoder enc = new JpegBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(rtb));
+            using var fs = File.OpenWrite(path);
+            enc.Save(fs);
+        }
+
+        // -------------------------------------------------------------------------------------------
+        // ---------------------------------- Battle Arena Logic --------------------------------------
+        // -------------------------------------------------------------------------------------------
+
+        private void UpdateHPUI()
+        {
+            if (_battleArenaCtrl != null)
+            {
+                _battleArenaCtrl.UpdatePlayerHP(_playerHP);
+                _battleArenaCtrl.UpdateBotHP(_botHP);
+            }
+        }
+
+        private void PlanNextBotAttack()
+        {
+            if (!_isBattleActive) return;
+            if (_botTimer != null) _botTimer.Stop();
+
+            // Das Ranking wird jetzt als vierter Parameter an die Bot-KI übergeben
+            // Wenn keine Bot-KI vorhanden, wähle zufällig
+            var botAI = new Logic.BotAI();
+            var decision = botAI.DetermineNextMove(_botHP, _playerHP, _lastPlayerElement, _playerRanking);
+
+            _currentBotElement = decision.SelectedElement;
+
+            _botTimer = new System.Windows.Threading.DispatcherTimer();
+            _botTimer.Tag = decision.TargetScore;
+            _botTimer.Interval = TimeSpan.FromSeconds(decision.CastDuration);
+            _botTimer.Tick += (s, e) =>
+            {
+                _botTimer.Stop();
+                // Simpler Bot-Cast: Reduce player HP based on TargetScore
+                int dmg = decision.TargetScore / 10;
+                _playerHP -= dmg;
+                if (_playerHP < 0) _playerHP = 0;
+                UpdateHPUI();
+                _battleArenaCtrl?.UpdateBotStatus($"Bot wirkt {_currentBotElement} und trifft dich ({dmg} DMG)!");
+                if (_playerHP <= 0) EndBattle(false);
+            };
+
+            _botTimer.Start();
+        }
+
         private void CastBattleSpell_Click(object sender, RoutedEventArgs e)
         {
             // Weiterleitung an die vorhandene interne Implementierung (keine Logik hier duplizieren)
@@ -546,107 +672,6 @@ namespace Magic_Symbol_Recognizer
             }
         }
 
-        private void SaveCanvasAsToJpg(string path, InkCanvas canvas)
-        {
-            if (canvas == null) throw new ArgumentNullException(nameof(canvas));
-            int width = (int)canvas.ActualWidth;
-            int height = (int)canvas.ActualHeight;
-            if (width <= 0 || height <= 0) throw new InvalidOperationException("Canvas hat ungültige Größe zum Speichern.");
-            RenderTargetBitmap rtb = new RenderTargetBitmap(width, height, 96d, 96d, PixelFormats.Default);
-            rtb.Render(canvas);
-            JpegBitmapEncoder enc = new JpegBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(rtb));
-            using var fs = File.OpenWrite(path);
-            enc.Save(fs);
-        }
-
-        private void SaveCanvasAsNormalizedJpg(string path, InkCanvas canvas, int targetWidth, int targetHeight)
-        {
-            if (canvas == null) throw new ArgumentNullException(nameof(canvas));
-            if (targetWidth <= 0 || targetHeight <= 0) throw new ArgumentOutOfRangeException("targetWidth/Height");
-
-            // Create a DrawingVisual that paints a white background and the canvas content scaled to target size
-            DrawingVisual dv = new DrawingVisual();
-            using (var dc = dv.RenderOpen())
-            {
-                dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, targetWidth, targetHeight));
-                VisualBrush vb = new VisualBrush(canvas)
-                {
-                    Stretch = Stretch.Uniform
-                };
-                dc.DrawRectangle(vb, null, new Rect(0, 0, targetWidth, targetHeight));
-            }
-
-            RenderTargetBitmap rtb = new RenderTargetBitmap(targetWidth, targetHeight, 96, 96, PixelFormats.Pbgra32);
-            rtb.Render(dv);
-
-            JpegBitmapEncoder enc = new JpegBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(rtb));
-            using var fs = File.OpenWrite(path);
-            enc.Save(fs);
-        }
-
-        private double CalculateFormAccuracy(string spellName, InkCanvas canvas)
-        {
-            if (!_perfectPatterns.TryGetValue(spellName, out var pattern) || pattern.Count == 0) return 0.0;
-
-            List<Point> drawn = new List<Point>();
-            foreach (var stroke in canvas.Strokes)
-                foreach (var p in stroke.StylusPoints)
-                    drawn.Add(new Point(p.X, p.Y));
-
-            if (drawn.Count < 5) return 0.0;
-
-            var nDrawn = NormalizePoints(drawn);
-            var nPattern = pattern;
-
-            int n = nPattern.Count;
-
-            double total = 0.0;
-
-            for (int i = 0; i < n; i++)
-            {
-                double relativePosition = (double)i / (n - 1);
-
-                int playerIndex = (int)Math.Round(relativePosition * (nDrawn.Count - 1));
-
-                var a = nDrawn[playerIndex];
-                var b = nPattern[i];
-
-                total += Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
-            }
-
-            double avg = total / n;
-
-            double acc = 100.0 - (avg * 75.0);
-
-            acc = Math.Max(0.0, Math.Min(100.0, acc));
-
-            return acc;
-        }
-
-        private List<Point> NormalizePoints(List<Point> points)
-        {
-            if (points == null || points.Count == 0) return new List<Point>();
-            double minX = double.MaxValue, minY = double.MaxValue;
-            double maxX = double.MinValue, maxY = double.MinValue;
-            foreach (var p in points)
-            {
-                if (p.X < minX) minX = p.X;
-                if (p.Y < minY) minY = p.Y;
-                if (p.X > maxX) maxX = p.X;
-                if (p.Y > maxY) maxY = p.Y;
-            }
-            double w = Math.Max(1e-6, maxX - minX);
-            double h = Math.Max(1e-6, maxY - minY);
-            var res = new List<Point>(points.Count);
-            foreach (var p in points)
-            {
-                res.Add(new Point((p.X - minX) / w, (p.Y - minY) / h));
-            }
-            return res;
-        }
-
         private bool CheckIfPlayerCountersBot(string playerElement, string botElement)
         {
             switch (playerElement)
@@ -660,6 +685,47 @@ namespace Magic_Symbol_Recognizer
                 case "Dark": return botElement == "Light";     // Dunkelheit verschlingt Licht
                 default: return false;
             }
+        }
+
+        private void EndBattle(bool playerWon)
+        {
+            _isBattleActive = false;
+            if (_botTimer != null) _botTimer.Stop();
+
+            // Multiplikator (Faktor 250), um aus dem HP/1000-Verhältnis spürbare Spielpunkte zu machen
+            const int scalingFactor = 250;
+
+            if (playerWon)
+            {
+                // Gewinn: Verhältnis der eigenen verbleibenden HP zu 1000
+                double ratio = _playerHP / 1000.0;
+                int pointsGained = (int)Math.Round(ratio * scalingFactor);
+                if (pointsGained < 1) pointsGained = 1; // Mindestens 1 Punkt Gewinn
+
+                _playerRanking += pointsGained;
+                MessageBox.Show($"SIEG!\nDu hast den Bot bezwungen.\n\nRanking: +{pointsGained} LP", "Schlacht beendet");
+            }
+            else
+            {
+                // Verlust: Verhältnis der verbleibenden Bot-HP zu 1000
+                double ratio = _botHP / 1000.0;
+                int pointsLost = (int)Math.Round(ratio * scalingFactor);
+                if (pointsLost < 1) pointsLost = 1;
+
+                _playerRanking -= pointsLost;
+                if (_playerRanking < 0) _playerRanking = 0; // Schutz vor Minus-Punkten
+
+                MessageBox.Show($"NIEDERLAGE!\nDer Bot hat dich besiegt.\n\nRanking: -{pointsLost} LP", "Schlacht beendet");
+            }
+
+            // Punkte auf der Festplatte sichern und den Home Screen aktualisieren
+            RankingManager.SaveRanking(_playerRanking);
+            var txt = this.FindName("TxtRankingDisplay") as TextBlock;
+            if (txt != null) txt.Text = $"Ranking: {_playerRanking} LP";
+
+            // Zurück ins Hauptmenü schalten
+            if (_battleArenaCtrl != null) _battleArenaCtrl.Visibility = Visibility.Collapsed;
+            if (_mainMenuCtrl != null) _mainMenuCtrl.Visibility = Visibility.Visible;
         }
 
     }

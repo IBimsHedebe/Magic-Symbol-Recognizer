@@ -13,5 +13,9 @@
         <ctrls:BattleArenaControl x:Name="BattleArenaControl" Visibility="Collapsed"/>
         <ctrls:SpellcastingControl x:Name="SpellcastingControl" Visibility="Collapsed"/>
         <ctrls:LibraryControl x:Name="LibraryControl" Visibility="Collapsed"/>
+
+        <!-- Wiederhergestellte Header / Ranking-Anzeigen -->
+        <TextBlock Text="Magie-Akademie" FontSize="28" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,18,0,0"/>
+        <TextBlock x:Name="TxtRankingDisplay" Text="Ranking: 1000 LP" FontSize="14" Foreground="Gold" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,22,18,0" FontWeight="SemiBold"/>
     </Grid>
 </Window>
