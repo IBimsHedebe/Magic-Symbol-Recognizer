@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Magic_Symbol_Recognizer"
         xmlns:ctrls="clr-namespace:Magic_Symbol_Recognizer.Controls"
         mc:Ignorable="d"
-        Title="Magie-Akademie" Height="600" Width="900">
+        Title="Magic_Symbol_Recognizer" Height="600" Width="900">
 
     <Grid Background="#121212">
         <ctrls:MainMenuControl x:Name="MainMenuControl" HorizontalAlignment="Center" VerticalAlignment="Center"/>
